@@ -1,0 +1,25 @@
+{
+  "name": "euler-typescript",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sjohna/euler-typescript.git"
+  },
+  "author": "John A. Stevens",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/sjohna/euler-typescript/issues"
+  },
+  "homepage": "https://github.com/sjohna/euler-typescript#readme",
+  "devDependencies": {
+    "@types/node": "^18.7.13",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.2"
+  }
+}
