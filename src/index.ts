@@ -1,4 +1,5 @@
 import {euler1} from "./euler1";
 import {OperatorFunction, UnaryFunction} from "rxjs";
+import {euler2} from "./euler2";
 
-euler1.usingReduce().subscribe(console.log)
+euler2.solution().subscribe(console.log)
