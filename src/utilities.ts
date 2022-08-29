@@ -33,7 +33,7 @@ export function sum(): OperatorFunction<number, number> {
     return reduce((acc: number, curr: number) => acc + curr, 0)
 }
 
-export function fibonacci_C(): Observable<ValueWithCancelToken<number>> {
+export function fibonacci_I(): Observable<ValueWithCancelToken<number>> {
     const token = new CancelToken();
     return new Observable<ValueWithCancelToken<number>>((subscriber) => {
         let prev = 0;
@@ -43,9 +43,32 @@ export function fibonacci_C(): Observable<ValueWithCancelToken<number>> {
             const next = curr + prev;
             prev = curr;
             curr = next;
-        }
+        };
         subscriber.complete();
     })
+}
+
+export function primes_I(): Observable<ValueWithCancelToken<number>> {
+    const token = new CancelToken();
+    return new Observable<ValueWithCancelToken<number>>((subscriber) => {
+        subscriber.next(new ValueWithCancelToken(token, 2));
+
+        let curr = 3;
+        while (!token.cancelled) {
+            const factorLimit = Math.sqrt(curr);
+            let prime = true;
+            for (let factor = 2; factor < factorLimit && !token.cancelled; ++factor) {
+                if (curr % factor == 0) {
+                    prime = false;
+                    break;
+                }
+            }
+            !token.cancelled && subscriber.next(new ValueWithCancelToken<number>(token, curr));
+            curr += 2;
+        }
+
+        subscriber.complete();
+    });
 }
 
 export function takeWhile_C<T>(predicate: (value: T, index: number) => boolean): MonoTypeOperatorFunction<ValueWithCancelToken<T>> {
@@ -75,4 +98,19 @@ export function cancelWhenComplete<T>(): OperatorFunction<ValueWithCancelToken<T
             )
 
     })
+}
+
+export function primeFactorsOf(n: number): Observable<number> {
+    return new Observable<number>((subscriber) => {
+        primes_I().subscribe((prime) => {
+            while (n > 1 && n % prime.value == 0) {
+                n /= prime.value;
+                subscriber.next(prime.value);
+            }
+            if (n <= 1) {
+                subscriber.complete();
+                prime.token.cancelled = true;
+            }
+        });
+    });
 }
