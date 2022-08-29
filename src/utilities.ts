@@ -114,3 +114,24 @@ export function primeFactorsOf(n: number): Observable<number> {
         });
     });
 }
+
+export function crossProduct<T1, T2>(o1: Observable<T1>, o2: Observable<T2>): Observable<[T1, T2]> {
+    return new Observable<[T1, T2]>((subscriber) => {
+        o1.subscribe(num1 => {
+            o2.subscribe(num2 => {
+                subscriber.next([num1, num2]);
+            });
+        });
+        subscriber.complete();
+    })
+}
+
+export function isPalindromeNumber(n: number): boolean {
+    const nStr = n.toString();
+    for (let i = 0; i < nStr.length/2; ++i) {
+        if (nStr[i] !== nStr[nStr.length - 1 - i]) {
+            return false;
+        }
+    }
+    return true;
+}
