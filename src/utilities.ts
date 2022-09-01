@@ -57,13 +57,13 @@ export function primes_I(): Observable<ValueWithCancelToken<number>> {
         while (!token.cancelled) {
             const factorLimit = Math.sqrt(curr);
             let prime = true;
-            for (let factor = 2; factor < factorLimit && !token.cancelled; ++factor) {
+            for (let factor = 2; factor <= factorLimit && !token.cancelled; ++factor) {
                 if (curr % factor == 0) {
                     prime = false;
                     break;
                 }
             }
-            !token.cancelled && subscriber.next(new ValueWithCancelToken<number>(token, curr));
+            !token.cancelled && prime && subscriber.next(new ValueWithCancelToken<number>(token, curr));
             curr += 2;
         }
 
