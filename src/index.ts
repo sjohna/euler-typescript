@@ -5,5 +5,5 @@ import {euler4} from "./euler4";
 import {euler6} from "./euler6";
 import {euler7} from "./euler7";
 
-euler7.solution().subscribe(console.log)
+euler4.solution().subscribe(console.log)
 

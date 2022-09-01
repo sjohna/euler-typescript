@@ -1,4 +1,4 @@
-import {MonoTypeOperatorFunction, Observable, OperatorFunction, reduce, takeWhile} from "rxjs";
+import {map, MonoTypeOperatorFunction, Observable, OperatorFunction, reduce, takeWhile} from "rxjs";
 import {operate} from "rxjs/internal/util/lift";
 import {createOperatorSubscriber} from "rxjs/internal/operators/OperatorSubscriber";
 
@@ -86,17 +86,16 @@ export function C<T, R>(f: (value: T) => R): (value: ValueWithCancelToken<T>) =>
 export function cancelWhenComplete<T>(): OperatorFunction<ValueWithCancelToken<T>, T> {
     return operate((source, subscriber) => {
         let token: CancelToken;
-            source.subscribe(
-                createOperatorSubscriber(subscriber, (valueWithCancelToken: ValueWithCancelToken<T>) => {
-                        token = valueWithCancelToken.token;
-                        subscriber.next(valueWithCancelToken.value)
-                    }, () => {
-                        token.cancelled = true;
-                        subscriber.complete()
-                    }
-                )
+        source.subscribe(
+            createOperatorSubscriber(subscriber, (valueWithCancelToken: ValueWithCancelToken<T>) => {
+                    token = valueWithCancelToken.token;
+                    subscriber.next(valueWithCancelToken.value)
+                }, () => {
+                    token.cancelled = true;
+                    subscriber.complete()
+                }
             )
-
+        )
     })
 }
 
@@ -115,15 +114,35 @@ export function primeFactorsOf(n: number): Observable<number> {
     });
 }
 
-export function crossProduct<T1, T2>(o1: Observable<T1>, o2: Observable<T2>): Observable<[T1, T2]> {
-    return new Observable<[T1, T2]>((subscriber) => {
-        o1.subscribe(num1 => {
-            o2.subscribe(num2 => {
-                subscriber.next([num1, num2]);
-            });
-        });
-        subscriber.complete();
+export function crossProduct<T>(...args: Observable<T>[]): Observable<T[]> {
+    let ret = args[0].pipe(inArray());
+
+    for (let i = 1; i < args.length; ++i) {
+        ret = ret.pipe(
+            crossProductWith(args[i])
+        )
+    }
+
+    return ret
+}
+
+export function crossProductWith<T>(rhs: Observable<T>): MonoTypeOperatorFunction<T[]> {
+    return operate((source, subscriber) => {
+        source.subscribe(
+            createOperatorSubscriber(subscriber, (arr: T[]) => {
+                    rhs.subscribe(val => {
+                        const cp = [...arr];
+                        cp.push(val);
+                        subscriber.next(cp);
+                    })
+                }
+            )
+        )
     })
+}
+
+export function inArray<T>(): OperatorFunction<T, T[]> {
+    return map(val => [val]);
 }
 
 export function isPalindromeNumber(n: number): boolean {
